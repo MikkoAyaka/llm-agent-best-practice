@@ -10,6 +10,7 @@ from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.graph_stores.neo4j import Neo4jGraphStore
 from llama_index.llms.openai import OpenAI
 from llama_index.vector_stores.chroma import ChromaVectorStore
+from loguru import logger
 from sqlalchemy import create_engine, MetaData
 
 from llm_agent_best_practice.prompt.prompts import Prompts
@@ -23,9 +24,11 @@ def ioc_config_llm(binder):
     llm = OpenAI(api_base=os.getenv('OPENAI_LLM_API_BASE'), api_key=os.getenv('OPENAI_LLM_API_KEY'),
                  model=os.getenv('OPENAI_LLM_API_MODEL'))
     binder.bind(OpenAI, llm)
+    logger.success("LLM service connected.")
 
     embedding_model = OpenAIEmbedding(temperature=0, api_base=os.getenv('OPENAI_LLM_API_BASE'))
     binder.bind(OpenAIEmbedding, embedding_model)
+    logger.success("Embedding service connected.")
 
 
 def ioc_config_database(binder):
@@ -34,9 +37,11 @@ def ioc_config_database(binder):
 
     sql_conn = sqlite3.connect(sqlite_db_path)
     binder.bind(sqlite3.Connection, sql_conn)
+    logger.success("SQL service connected.")
 
     chroma_client = chromadb.Client()
     binder.bind(chromadb.ClientAPI, chroma_client)
+    logger.success("Chroma service connected.")
 
     chroma_memory_repo = ChromaMemoryRepository(chroma_client)
     binder.bind(ChromaMemoryRepository, chroma_memory_repo)
@@ -50,6 +55,7 @@ def ioc_config_database(binder):
         password=os.getenv('NEO4J_PASSWORD')
     )
     binder.bind(Neo4jGraphStore, neo4j_store)
+    logger.success("Neo4j service connected.")
 
     def factory_sql_engine():
         base_engine = create_engine(sqlite_db_url, echo=False)
@@ -74,12 +80,17 @@ def ioc_config_database(binder):
         )
 
     binder.bind(SQLTableRetrieverQueryEngine, factory_sql_engine)
+    logger.success("SQLRetrieverQueryEngine has been initialized.")
 
 
 def ioc_config(binder):
     ioc_config_llm(binder)
+    logger.success("Beans of llm has been initialized.")
     ioc_config_database(binder)
+    logger.success("Beans of database has been initialized.")
 
 
 def ioc_init():
+    logger.info("Initializing IOC...")
     inject.configure(ioc_config)
+    logger.success("IOC initialized.")

@@ -2,6 +2,7 @@ import asyncio
 import os
 
 from dotenv import load_dotenv
+from loguru import logger
 
 from llm_agent_best_practice.config.ioc import ioc_init
 
@@ -17,8 +18,10 @@ def load_env():
 
 
 def global_init():
+    logger.info("Global init start")
     load_env()
     ioc_init()
+    logger.success("Global init done")
 
 
 async def test():
@@ -29,5 +32,7 @@ async def test():
 
 
 if __name__ == '__main__':
+    logger.info("LLM-Agent service starting...")
     global_init()
+    logger.success("LLM-Agent service started.")
     asyncio.run(test())
