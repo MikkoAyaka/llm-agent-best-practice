@@ -4,6 +4,7 @@ chromadb==0.5.15
 llama-index-vector-stores-chroma==0.2.1
 # https://llamahub.ai/l/graph_stores/llama-index-graph-stores-neo4j?from=
 llama-index-graph-stores-neo4j==0.3.4
-llama-index-llms-dashscope==0.2.2
 typing-extensions==4.12.2
 python-dotenv==1.0.1
+openai
+inject==5.2.1
