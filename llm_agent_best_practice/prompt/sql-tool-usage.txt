@@ -1,0 +1,4 @@
+Use this MySQL query tool to perform efficient and reliable operations on structured relational data.
+Ideal for scenarios requiring traditional relational database management, such as data storage,
+retrieval, and complex query execution. Input your SQL query to get started and gain insights from
+your structured datasets.

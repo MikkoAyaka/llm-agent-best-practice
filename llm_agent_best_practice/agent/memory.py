@@ -3,11 +3,8 @@ from llama_index.core.base.llms.types import ChatMessage, MessageRole
 from llama_index.core.memory import SimpleComposableMemory, VectorMemory, ChatMemoryBuffer
 from llama_index.embeddings.openai import OpenAIEmbedding
 
-from llm_agent_best_practice.database import chroma_store_memory
-
-short_memory_prompt = ""
-long_memory_prompt = ""
-
+from llm_agent_best_practice.prompt.prompts import Prompts
+from llm_agent_best_practice.repository.chroma_memory import ChromaMemoryRepository
 
 class AgentMemory:
 
@@ -17,9 +14,9 @@ class AgentMemory:
 
 
 @inject.autoparams()
-def _init_short_memory(agent_id: int, embed_model: OpenAIEmbedding) -> SimpleComposableMemory:
+def _init_short_memory(agent_id: int, embed_model: OpenAIEmbedding, prompts: Prompts) -> SimpleComposableMemory:
     preset_memories = [
-        ChatMessage.from_str(short_memory_prompt, MessageRole.SYSTEM),
+        ChatMessage.from_str(prompts.get('short-memory'), MessageRole.SYSTEM),
     ]
 
     vector_memory = VectorMemory.from_defaults(
@@ -38,11 +35,12 @@ def _init_short_memory(agent_id: int, embed_model: OpenAIEmbedding) -> SimpleCom
 
 
 @inject.autoparams()
-def _init_long_memory(agent_id: int, embed_model: OpenAIEmbedding) -> SimpleComposableMemory:
-    preset_memories = [ChatMessage.from_str(long_memory_prompt, MessageRole.SYSTEM)]
+def _init_long_memory(agent_id: int, embed_model: OpenAIEmbedding, prompts: Prompts,
+                      memory_repo: ChromaMemoryRepository) -> SimpleComposableMemory:
+    preset_memories = [ChatMessage.from_str(prompts.get('long-memory'), MessageRole.SYSTEM)]
 
     vector_memory = VectorMemory.from_defaults(
-        vector_store=chroma_store_memory(agent_id),
+        vector_store=memory_repo.get(agent_id),
         embed_model=embed_model,
         retriever_kwargs={"similarity_top_k": 1},
     )

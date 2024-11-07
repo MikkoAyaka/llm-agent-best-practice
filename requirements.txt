@@ -8,3 +8,4 @@ typing-extensions==4.12.2
 python-dotenv==1.0.1
 openai
 inject==5.2.1
+SQLAlchemy
