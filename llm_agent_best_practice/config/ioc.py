@@ -49,13 +49,13 @@ def ioc_config_database(binder):
     chroma_store = ChromaVectorStore(chroma_collection=chroma_client.get_or_create_collection("nyxis"))
     binder.bind(ChromaVectorStore, chroma_store)
 
-    neo4j_store = Neo4jGraphStore(
-        url=os.getenv('NEO4J_URI'),
-        username=os.getenv('NEO4J_USERNAME'),
-        password=os.getenv('NEO4J_PASSWORD')
-    )
-    binder.bind(Neo4jGraphStore, neo4j_store)
-    logger.success("Neo4j service connected.")
+    # neo4j_store = Neo4jGraphStore(
+    #     url=os.getenv('NEO4J_URI'),
+    #     username=os.getenv('NEO4J_USERNAME'),
+    #     password=os.getenv('NEO4J_PASSWORD')
+    # )
+    # binder.bind(Neo4jGraphStore, neo4j_store)
+    # logger.success("Neo4j service connected.")
 
     def factory_sql_engine():
         base_engine = create_engine(sqlite_db_url, echo=False)
