@@ -19,4 +19,5 @@ chromadb==0.5.15
 #########################
 ## https://llamahub.ai/l/graph_stores/llama-index-graph-stores-neo4j?from=
 # llama-index-graph-stores-neo4j==0.3.4
-llama-index-tools-bing-search==0.2.0
+# llama-index-tools-bing-search==0.2.0
+# llama-index-llms-dashscope==0.2.5

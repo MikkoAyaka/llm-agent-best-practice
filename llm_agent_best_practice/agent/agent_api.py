@@ -3,6 +3,7 @@ from typing import List
 import inject
 from llama_index.core.agent import ReActAgent
 from llama_index.core.base.llms.types import ChatMessage
+from llama_index.core.llms import LLM
 from llama_index.llms.openai import OpenAI
 
 from .memory import AgentMemory
@@ -15,7 +16,7 @@ _agents_dict: dict[int, 'LLMAgent'] = {}
 class LLMAgent:
 
     @inject.autoparams()
-    def __new__(cls, agent_id: int, llm: OpenAI):
+    def __new__(cls, agent_id: int, llm: LLM):
         if agent_id not in _agents_dict:
             # 仅传入 cls 创建新实例
             instance = super(LLMAgent, cls).__new__(cls)
@@ -23,7 +24,7 @@ class LLMAgent:
         return _agents_dict[agent_id]
 
     @inject.autoparams()
-    def __init__(self, agent_id: int, llm: OpenAI):
+    def __init__(self, agent_id: int, llm: LLM):
         # 防止重复初始化
         if hasattr(self, "_initialized") and self._initialized:
             return
