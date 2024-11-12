@@ -9,11 +9,13 @@ def soft_import(module: str, attr: str) -> Any:
     return getattr(_module, attr)
 
 
-def py_require(func: Callable = lambda: (), extra_failed_msg: str = ""):
+def py_require(func: Callable = lambda: (), extra_failed_msg: str = "") -> bool:
     try:
         func()
+        return True
     except ImportError as e:
         if len(extra_failed_msg) > 0:
             loguru.logger.warning(e.msg + " >> " + extra_failed_msg)
         else:
             loguru.logger.warning(e.msg)
+        return False

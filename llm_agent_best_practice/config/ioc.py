@@ -5,6 +5,7 @@ import chromadb
 import inject
 from llama_index.core import SQLDatabase, VectorStoreIndex, ServiceContext
 from llama_index.core.indices.struct_store import SQLTableRetrieverQueryEngine
+from llama_index.core.llms import LLM
 from llama_index.core.objects import SQLTableSchema, SQLTableNodeMapping, ObjectIndex
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.llms.openai import OpenAI
@@ -21,9 +22,17 @@ def ioc_config_llm(binder):
     prompts = Prompts()
     binder.bind(Prompts, prompts)
 
-    llm = OpenAI(api_base=os.getenv('OPENAI_LLM_API_BASE'), api_key=os.getenv('OPENAI_LLM_API_KEY'),
-                 model=os.getenv('OPENAI_LLM_API_MODEL'))
-    binder.bind(OpenAI, llm)
+    def import_dash_scope():
+        DashScope = soft_import("llama_index.llms.dashscope", "DashScope")
+        DashScopeGenerationModels = soft_import("llama_index.llms.dashscope", "DashScopeGenerationModels")
+        llm = DashScope(model_name=DashScopeGenerationModels.QWEN_MAX, api_key=os.getenv("DASHSCOPE_API_KEY"))
+        binder.bind(LLM, llm)
+
+    if not py_require(import_dash_scope):
+        llm = OpenAI(api_base=os.getenv('OPENAI_LLM_API_BASE'), api_key=os.getenv('OPENAI_LLM_API_KEY'),
+                     model=os.getenv('OPENAI_LLM_API_MODEL'))
+        binder.bind(LLM, llm)
+
     logger.success("LLM service connected.")
 
     embedding_model = OpenAIEmbedding(temperature=0, api_base=os.getenv('OPENAI_LLM_API_BASE'))
