@@ -7,7 +7,6 @@ from llama_index.core import SQLDatabase, VectorStoreIndex, ServiceContext
 from llama_index.core.indices.struct_store import SQLTableRetrieverQueryEngine
 from llama_index.core.objects import SQLTableSchema, SQLTableNodeMapping, ObjectIndex
 from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.graph_stores.neo4j import Neo4jGraphStore
 from llama_index.llms.openai import OpenAI
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from loguru import logger
@@ -15,6 +14,7 @@ from sqlalchemy import create_engine, MetaData
 
 from llm_agent_best_practice.prompt.prompts import Prompts
 from llm_agent_best_practice.repository.chroma_memory import ChromaMemoryRepository
+from llm_agent_best_practice.util.utils import py_require, soft_import
 
 
 def ioc_config_llm(binder):
@@ -49,13 +49,17 @@ def ioc_config_database(binder):
     chroma_store = ChromaVectorStore(chroma_collection=chroma_client.get_or_create_collection("nyxis"))
     binder.bind(ChromaVectorStore, chroma_store)
 
-    # neo4j_store = Neo4jGraphStore(
-    #     url=os.getenv('NEO4J_URI'),
-    #     username=os.getenv('NEO4J_USERNAME'),
-    #     password=os.getenv('NEO4J_PASSWORD')
-    # )
-    # binder.bind(Neo4jGraphStore, neo4j_store)
-    # logger.success("Neo4j service connected.")
+    def init_neo4j_store():
+        Neo4jGraphStore = soft_import("llama_index.graph_stores.neo4j", "Neo4jGraphStore")
+        neo4j_store = Neo4jGraphStore(
+            url=os.getenv('NEO4J_URI'),
+            username=os.getenv('NEO4J_USERNAME'),
+            password=os.getenv('NEO4J_PASSWORD')
+        )
+        binder.bind(Neo4jGraphStore, neo4j_store)
+        logger.success("Neo4j service connected.")
+
+    py_require(init_neo4j_store)
 
     def factory_sql_engine():
         base_engine = create_engine(sqlite_db_url, echo=False)

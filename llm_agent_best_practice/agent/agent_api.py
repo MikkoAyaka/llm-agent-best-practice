@@ -6,6 +6,7 @@ from llama_index.core.base.llms.types import ChatMessage
 from llama_index.llms.openai import OpenAI
 
 from .memory import AgentMemory
+from .tools import default_tool_kits
 
 # 在类外部定义 _agents_dict
 _agents_dict: dict[int, 'LLMAgent'] = {}
@@ -26,7 +27,7 @@ class LLMAgent:
         # 防止重复初始化
         if hasattr(self, "_initialized") and self._initialized:
             return
-        self.react_agent = ReActAgent.from_tools([], llm=llm, verbose=True)
+        self.react_agent = ReActAgent.from_tools(default_tool_kits(), llm=llm, verbose=True)
         self.memory = AgentMemory(agent_id)
         self._initialized = True  # 标记实例已初始化
 
