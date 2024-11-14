@@ -1,2 +1,2 @@
-from .agent_api import LLMAgent
+from .agent import LLMAgent
 from .memory import AgentMemory

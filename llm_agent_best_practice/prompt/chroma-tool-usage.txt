@@ -1,3 +1,0 @@
-Use the Chroma graphical database query tool to retrieve and analyze complex relational data.
-Ideal for scenarios requiring detailed data visualization, relationship mapping, and in-depth
-database insights. Input your query to get started.
