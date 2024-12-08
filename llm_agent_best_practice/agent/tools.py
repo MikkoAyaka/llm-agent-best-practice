@@ -38,6 +38,6 @@ def realtime_tool_func(unit: str) -> int:
 
 @inject.autoparams()
 def default_tool_kits() -> List[Callable]:
-    tool_kits = []
+    tool_kits = [realtime_tool_func]
 
     return tool_kits

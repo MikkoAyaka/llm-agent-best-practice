@@ -8,7 +8,7 @@ from dspy import LM
 
 from .memory import AgentMemory
 from .tools import default_tool_kits
-from ..signature.signatures import Intent, IntentType, AgentChat
+from ..signature.signatures import Intent, IntentType, AgentChat, PerformTask
 
 # 在类外部定义 _agents_dict
 _agents_dict: dict[int, "LLMAgent"] = {}
@@ -52,6 +52,13 @@ class LLMAgent:
                     )
                     output = result.respond_msg
                 case "perform_task":
+                    chat_module = dspy.ReAct(signature=PerformTask, tools=self.tools)
+                    result = chat_module(
+                        command=message
+                    )
+                    output = result.respond_msg
+                case "other":
+                    print("Unsupported intent: other")
                     pass
         history = dict(
                 time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),

@@ -12,7 +12,13 @@ class AgentChat(dspy.Signature):
     respond_msg = dspy.OutputField(desc="你的回应消息")
 
 
-IntentType = Literal["daily_chat", "perform_task"]
+class PerformTask(dspy.Signature):
+    """你按照用户的指令调用工具执行操作"""
+    command = dspy.InputField(desc="用户提出的指令")
+    respond_msg = dspy.OutputField(desc="指令执行的结果(回应用户的消息)")
+
+
+IntentType = Literal["daily_chat", "perform_task", "other"]
 
 
 class Intent(dspy.Signature):
