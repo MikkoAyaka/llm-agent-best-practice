@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import dspy
 import inject
 import loguru
@@ -6,12 +8,14 @@ from dspy import LM
 from .memory import AgentMemory
 from .tools import default_tool_kits
 from ..signature.signatures import Intent, IntentType, AgentChat
+from ..util.utils import extract_history
 
 # 在类外部定义 _agents_dict
-_agents_dict: dict[int, 'LLMAgent'] = {}
+_agents_dict: dict[int, "LLMAgent"] = {}
 
 
 class LLMAgent:
+    history = []
 
     @inject.autoparams()
     def __new__(cls, agent_id: int, lm: LM):
@@ -40,20 +44,28 @@ class LLMAgent:
             match intent:
                 case "daily_chat":
                     chat_module = dspy.Predict(signature=AgentChat)
-                    result = chat_module(memory=self.memory.get_summary(), history="", user_msg=message)
-                    output = result.respond_msg
-                case "ask_question":
-                    chat_module = dspy.Predict(signature=AgentChat)
-                    result = chat_module(memory=self.memory.get_summary(), history="", user_msg=message)
+                    result = chat_module(
+                        memory=self.memory.get_summary(),
+                        history=self.history[:4],
+                        user_msg=message,
+                    )
                     output = result.respond_msg
                 case "perform_task":
-                    chat_module = dspy.Predict(signature=AgentChat)
-                    result = chat_module(memory=self.memory.get_summary(), history="", user_msg=message)
-                    output = result.respond_msg
+                    pass
         # loguru.logger.debug("Messages: {}".format('\n'.join([str(history['messages']) for history in histories])))
         # loguru.logger.debug("Response: %s", '\n'.join([history.response for history in histories]))
         # loguru.logger.debug("Outputs: %s", '\n'.join([history.outputs for history in histories]))
         # loguru.logger.debug("Timestamp: %s", '\n'.join([history.timestamp for history in histories]))
+        self.history.append(
+            dict(
+                time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                message=message,
+                response=output,
+            )
+        )
         loguru.logger.debug(
-            "LLM-Agent: {}, Input: {}, Intent: {}, Output: {}".format(self.agent_id, message, intent, output))
+            "LLM-Agent: {}, Input: {}, Intent: {}, Output: {}".format(
+                self.agent_id, message, intent, output
+            )
+        )
         return output

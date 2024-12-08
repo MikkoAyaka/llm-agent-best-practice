@@ -1,7 +1,17 @@
 import importlib
+from datetime import datetime
 from typing import Any, Callable
 
 import loguru
+
+
+def extract_history(history: dict) -> dict:
+    print(history.keys())
+    time = history.get("timestamp")
+    prompt = history.get("prompt")
+    messages = history.get("messages")
+    response = history.get("response")
+    return dict(time=time, prompt=prompt, message=messages, response=response)
 
 
 def soft_import(module: str, attr: str) -> Any:
