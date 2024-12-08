@@ -27,8 +27,7 @@ def global_init():
 async def test():
     from llm_agent_best_practice.agent.agent import LLMAgent
     llm_agent = LLMAgent(agent_id=1)
-    response1 = await llm_agent.chat("你好，我叫 MikkoAyaka，很高兴认识你")
-    response2 = await llm_agent.chat("我叫什么来着？")
+    response2 = await llm_agent.chat("你好，我叫什么名字？")
 
 
 if __name__ == '__main__':
