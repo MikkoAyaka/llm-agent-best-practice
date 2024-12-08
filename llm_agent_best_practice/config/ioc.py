@@ -20,7 +20,8 @@ def ioc_config_dspy(binder):
 
     binder.bind(OpenAIEmbeddingFunction, OpenAIEmbeddingFunction(
         api_key=os.getenv('OPENAI_API_KEY'),
-        api_base=os.getenv('OPENAI_LLM_API_BASE')
+        api_base=os.getenv('OPENAI_API_BASE'),
+        dimensions=384
     ))
 
     logger.success("LLM service connected.")

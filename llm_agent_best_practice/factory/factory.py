@@ -10,7 +10,7 @@ from dspy.retrieve.neo4j_rm import Neo4jRM
 
 def get_retriever(retriever_type: str, collection_name: str, *args) -> Retrieve:
     if retriever_type == "neo4j":
-        return Neo4jRM(index_name=collection_name, *args)
+        return Neo4jRM(index_name=collection_name, text_node_property="text", *args)
     if retriever_type == "chroma":
         embedding_function = inject.instance(OpenAIEmbeddingFunction)
         return ChromadbRM(
@@ -23,6 +23,7 @@ def get_retriever(retriever_type: str, collection_name: str, *args) -> Retrieve:
 
 
 def get_chroma_writer(collection_name: str) -> chromadb.Collection:
-    return get_retriever("chroma", collection_name).__getattribute__(
-        "_chromadb_collection"
+    return get_retriever("chroma", collection_name).__getattribute__("_chromadb_client").get_or_create_collection(
+        name=collection_name,
+        embedding_function=inject.instance(OpenAIEmbeddingFunction)
     )

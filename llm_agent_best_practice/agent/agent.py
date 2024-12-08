@@ -8,7 +8,7 @@ from dspy import LM
 
 from .memory import AgentMemory
 from .tools import default_tool_kits
-from ..signature.signatures import Intent, IntentType, AgentChat, PerformTask
+from ..module.modules import BionicQA
 
 # 在类外部定义 _agents_dict
 _agents_dict: dict[int, "LLMAgent"] = {}
@@ -38,28 +38,10 @@ class LLMAgent:
         self._initialized = True
 
     async def chat(self, message: str) -> str:
-        intent_module = dspy.Predict(signature=Intent)
-        intent: IntentType = intent_module(user_msg=message).intent
         output = ""
         with dspy.context(lm=self.lm):
-            match intent:
-                case "daily_chat":
-                    chat_module = dspy.Predict(signature=AgentChat)
-                    result = chat_module(
-                        memory=self.memory.get_summary(),
-                        history=self.history[-4:],
-                        user_msg=message,
-                    )
-                    output = result.respond_msg
-                case "perform_task":
-                    chat_module = dspy.ReAct(signature=PerformTask, tools=self.tools)
-                    result = chat_module(
-                        command=message
-                    )
-                    output = result.respond_msg
-                case "other":
-                    print("Unsupported intent: other")
-                    pass
+            chat_module = BionicQA(self)
+            output = chat_module(question=message).respond_msg
         history = dict(
                 time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 message=message,
@@ -68,8 +50,8 @@ class LLMAgent:
         self.history.append(history)
         self.memory.write(json.dumps(history))
         loguru.logger.debug(
-            "Agent: {}, Input: {}, Intent: {}, Output: {}".format(
-                self.agent_id, message, intent, output
+            "Agent: {}, Input: {}, Output: {}".format(
+                self.agent_id, message, output
             )
         )
         return output
