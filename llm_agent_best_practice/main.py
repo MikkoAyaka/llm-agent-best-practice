@@ -1,15 +1,11 @@
 import asyncio
 import os
 import time
-from datetime import datetime
 
 from dotenv import load_dotenv
-from dspy.datasets.gsm8k import gsm8k_metric, GSM8K
-from dspy.teleprompt import BootstrapFewShot
 from loguru import logger
 
 from llm_agent_best_practice.config.ioc import ioc_init
-from llm_agent_best_practice.module.modules import BasicQA
 
 
 def load_env():
@@ -49,11 +45,12 @@ async def test():
     repeat = 10
     for i in range(repeat):
         start_time = time.time()
-        response2 = await llm_agent.chat(input[i])
+        response2 = await llm_agent.stream_chat(input[i])
         end_time = time.time()
         total += end_time - start_time
 
     print("Aver Time: " + str(total / repeat))
+    time.sleep(5)
 
 
 if __name__ == "__main__":

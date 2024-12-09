@@ -58,7 +58,7 @@ class AgentMemory:
             document = documents["documents"][0].split("\n")
             return [json.loads(history) for history in document[-history_amount:] if history.strip()]
 
-    def write(self, history):
+    async def write(self, history):
         ids = [str(self.agent_id)]
         documents = self.memory_writer.get(ids=ids)
         if len(documents["documents"]) == 0:

@@ -1,8 +1,8 @@
 ################
 # AI Framework #
 ################
-dspy==2.5.29
-dspy-ai[neo4j]==2.5.29
+dspy==2.5.41
+dspy-ai[neo4j]==2.5.41
 # llama-index==0.11.19
 # https://llamahub.ai/l/vector_stores/llama-index-vector-stores-chroma?from=
 # llama-index-vector-stores-chroma==0.2.1

@@ -1,9 +1,13 @@
+import asyncio
 import json
+import os
+from datetime import datetime
 
 import dspy
 import inject
 import loguru
 from dspy import LM
+from litellm import completion
 
 from .memory import AgentMemory
 from .tools import default_tool_kits
@@ -36,22 +40,33 @@ class LLMAgent:
         self.history = self.memory.read(20)
         self._initialized = True
 
-    async def record_history(self, history):
-        self.history.append(history)
-        self.memory.write(json.dumps(history))
-
     async def chat(self, message: str) -> str:
         output = ""
         with dspy.context(lm=self.lm):
+
             chat_module = BasicQA()
             output = chat_module(history=self.history[-20:], question=message).output
-        # history = dict(
-        #     time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        #     message=message,
-        #     response=output,
-        # )
-        # task = asyncio.create_task(self.record_history(history))
+        history = dict(
+            time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            message=message,
+            response=output,
+        )
+        self.history.append(history)
+        task = asyncio.create_task(self.memory.write(json.dumps(history)))
         loguru.logger.debug(
             "Agent: {}, Input: {}, Output: {}".format(self.agent_id, message, output)
         )
         return output
+
+    async def stream_chat(self, message: str):
+        response = completion(
+            model=os.getenv("OPENAI_API_MODEL"),
+            api_base=os.getenv("OPENAI_API_BASE"),
+            api_key=os.getenv("OPENAI_API_KEY"),
+            messages=[{"content": message, "role": "user"}],
+            cache={"no-cache": True, "no-store": True},
+            stream=True
+        )
+        for part in response:
+            print(part.choices[0].delta.content or "", end="")
+        print()
